@@ -17,6 +17,7 @@ namespace DelegateVerify
         }
 
 
+        [Ignore("")]
         [Test]
         public void no_exist_order_should_insert()
         {
@@ -27,6 +28,7 @@ namespace DelegateVerify
             orderController.Save(new Order {Id = 91, Amount = 100});
         }
 
+        [Ignore("")]
         [Test]
         public void test_delete_adult_orders()
         {
