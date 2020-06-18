@@ -39,20 +39,19 @@ namespace DelegateVerify
             _log.DidNotReceiveWithAnyArgs();
         }
 
-        [Ignore("")]
         [Test]
         public void test_delete_adult_orders()
         {
-            //TODO
-            var model = Substitute.For<IOrderModel>();
-            var orderController = new OrderController(model);
-            orderController.DeleteAdultOrders();
-        }
+            var order = new Order {Id = 91, Amount = 100, Customer = new Customer() {Age = 30}};
 
-        private static Order GivenOrder(int id, int amount)
-        {
-            var order = new Order {Id = id, Amount = amount};
-            return order;
+            Func<Order, bool> modelDeletePredicate = null;
+
+            _model.When(m => m.Delete(Arg.Any<Func<Order, bool>>()))
+                .Do(m => modelDeletePredicate = m[0] as Func<Order, bool>);
+
+            _orderController.DeleteAdultOrders();
+
+            Assert.IsTrue(modelDeletePredicate(order));
         }
     }
 }
