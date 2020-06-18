@@ -10,11 +10,14 @@ namespace DelegateVerify
         private bool _isInsert = false;
         private bool _isUpdate = false;
         private MyOrderModel _myOrderModel;
-        private IRepository<Order> _repository = Substitute.For<IRepository<Order>>();
+        private IRepository<Order> _repository;
 
         [SetUp]
         public void Setup()
         {
+            _isInsert = false;
+            _isUpdate = false;
+            _repository = Substitute.For<IRepository<Order>>();
             _myOrderModel = new MyOrderModel(_repository);
         }
 
@@ -24,16 +27,20 @@ namespace DelegateVerify
             GivenOrderNoExist();
             WhenSave();
 
-            ShouldInvokeInsertCallback();
+            ShouldNotInvokeInsertCallback();
             ShouldInvokeUpdateCallback();
         }
 
-        [Ignore("")]
         [Test]
         public void update_order()
         {
-            //TODO
-            var myOrderModel = new MyOrderModel(_repository);
+            _repository.IsExist(Arg.Any<Order>()).ReturnsForAnyArgs(true);
+            WhenSave();
+
+            _repository.ReceivedWithAnyArgs(1).Update(Arg.Any<Order>());
+
+            Assert.IsFalse(_isInsert);
+            Assert.IsTrue(_isUpdate);
         }
 
         private void ShouldInvokeUpdateCallback()
@@ -41,7 +48,7 @@ namespace DelegateVerify
             Assert.IsTrue(_isInsert);
         }
 
-        private void ShouldInvokeInsertCallback()
+        private void ShouldNotInvokeInsertCallback()
         {
             Assert.IsFalse(_isUpdate);
         }
@@ -49,13 +56,13 @@ namespace DelegateVerify
         private void WhenSave()
         {
             var insertCallback = SimulateInsertCallback();
-            var updateCallback = SumulateUpdateCallback();
+            var updateCallback = SimulateUpdateCallback();
             _myOrderModel.Save(Arg.Any<Order>(),
                 insertCallback,
                 updateCallback);
         }
 
-        private Action<Order> SumulateUpdateCallback()
+        private Action<Order> SimulateUpdateCallback()
         {
             return (o) => { _isUpdate = true; };
         }
