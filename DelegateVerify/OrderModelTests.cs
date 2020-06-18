@@ -27,28 +27,55 @@ namespace DelegateVerify
             GivenOrderNoExist();
             WhenSave();
 
-            ShouldNotInvokeInsertCallback();
-            ShouldInvokeUpdateCallback();
+            ShouldInsertRepository();
+
+            ShouldNotInvokeUpdateCallback();
+            ShouldInvokeInsertCallback();
         }
 
         [Test]
         public void update_order()
         {
-            _repository.IsExist(Arg.Any<Order>()).ReturnsForAnyArgs(true);
+            GivenOrderExist();
             WhenSave();
 
-            _repository.ReceivedWithAnyArgs(1).Update(Arg.Any<Order>());
+            ShouldUpdateRepository();
 
-            Assert.IsFalse(_isInsert);
-            Assert.IsTrue(_isUpdate);
+            ShouldNotInvokeInsertCallback();
+            ShouldInvokeUpdateCallback();
+        }
+
+        private void ShouldInsertRepository()
+        {
+            _repository.ReceivedWithAnyArgs(1).Insert(Arg.Any<Order>());
+        }
+
+        private void ShouldUpdateRepository()
+        {
+            _repository.ReceivedWithAnyArgs(1).Update(Arg.Any<Order>());
+        }
+
+        private void GivenOrderExist()
+        {
+            _repository.IsExist(Arg.Any<Order>()).ReturnsForAnyArgs(true);
         }
 
         private void ShouldInvokeUpdateCallback()
         {
-            Assert.IsTrue(_isInsert);
+            Assert.IsTrue(_isUpdate);
         }
 
         private void ShouldNotInvokeInsertCallback()
+        {
+            Assert.IsFalse(_isInsert);
+        }
+
+        private void ShouldInvokeInsertCallback()
+        {
+            Assert.IsTrue(_isInsert);
+        }
+
+        private void ShouldNotInvokeUpdateCallback()
         {
             Assert.IsFalse(_isUpdate);
         }
