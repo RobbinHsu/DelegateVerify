@@ -7,31 +7,36 @@ namespace DelegateVerify
     [TestFixture]
     public class OrderControllerTests
     {
+        private ILog _log;
+        private IOrderModel _model;
+        private OrderController _orderController;
+
+        [SetUp]
+        public void Setup()
+        {
+            _model = Substitute.For<IOrderModel>();
+            _log = Substitute.For<ILog>();
+            _orderController = new OrderController(_model, _log);
+        }
+
         [Test]
         public void exist_order_should_update()
         {
-            //TODO
-            var model = Substitute.For<IOrderModel>();
-            var log = Substitute.For<ILog>();
-            var orderController = new OrderController(model, log);
-
             var order = new Order {Id = 91, Amount = 100};
-            model.Save(order, Arg.Any<Action<Order>>(), Arg.Invoke(order));
-            orderController.Save(order);
+            _model.Save(order, Arg.Any<Action<Order>>(), Arg.Invoke(order));
+            _orderController.Save(order);
 
-            log.Received(1).Write(Arg.Is<string>(x => x.Contains("update")));
+            _log.Received(1).Write(Arg.Is<string>(x => x.Contains("update")));
         }
 
-
-        [Ignore("")]
         [Test]
         public void no_exist_order_should_insert()
         {
-            //TODO
-            var model = Substitute.For<IOrderModel>();
-            var orderController = new OrderController(model);
+            var order = new Order {Id = 91, Amount = 100};
+            _model.Save(order, Arg.Any<Action<Order>>(), Arg.Any<Action<Order>>());
+            _orderController.Save(order);
 
-            orderController.Save(new Order {Id = 91, Amount = 100});
+            _log.DidNotReceiveWithAnyArgs();
         }
 
         [Ignore("")]
@@ -42,6 +47,12 @@ namespace DelegateVerify
             var model = Substitute.For<IOrderModel>();
             var orderController = new OrderController(model);
             orderController.DeleteAdultOrders();
+        }
+
+        private static Order GivenOrder(int id, int amount)
+        {
+            var order = new Order {Id = id, Amount = amount};
+            return order;
         }
     }
 }
