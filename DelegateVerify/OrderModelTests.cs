@@ -6,14 +6,21 @@ namespace DelegateVerify
     [TestFixture]
     public class OrderModelTests
     {
+        private bool _isInsert = false;
+        private bool _isUpdate = false;
         private IRepository<Order> _repository = Substitute.For<IRepository<Order>>();
 
-        [Ignore("")]
         [Test]
         public void insert_order()
         {
-            //TODO
             var myOrderModel = new MyOrderModel(_repository);
+            _repository.IsExist(Arg.Any<Order>()).ReturnsForAnyArgs(false);
+            myOrderModel.Save(Arg.Any<Order>(),
+                (o) => { _isInsert = true; },
+                (o) => { _isUpdate = true; });
+
+            Assert.IsFalse(_isUpdate);
+            Assert.IsTrue(_isInsert);
         }
 
         [Ignore("")]
