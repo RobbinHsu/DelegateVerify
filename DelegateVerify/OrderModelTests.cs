@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace DelegateVerify
@@ -8,19 +9,57 @@ namespace DelegateVerify
     {
         private bool _isInsert = false;
         private bool _isUpdate = false;
+        private MyOrderModel _myOrderModel;
         private IRepository<Order> _repository = Substitute.For<IRepository<Order>>();
+
+        [SetUp]
+        public void Setup()
+        {
+            _myOrderModel = new MyOrderModel(_repository);
+        }
 
         [Test]
         public void insert_order()
         {
-            var myOrderModel = new MyOrderModel(_repository);
-            _repository.IsExist(Arg.Any<Order>()).ReturnsForAnyArgs(false);
-            myOrderModel.Save(Arg.Any<Order>(),
-                (o) => { _isInsert = true; },
-                (o) => { _isUpdate = true; });
+            GivenOrderNoExist();
+            WhenSave();
 
-            Assert.IsFalse(_isUpdate);
+            ShouldInvokeInsertCallback();
+            ShouldInvokeUpdateCallback();
+        }
+
+        private void ShouldInvokeUpdateCallback()
+        {
             Assert.IsTrue(_isInsert);
+        }
+
+        private void ShouldInvokeInsertCallback()
+        {
+            Assert.IsFalse(_isUpdate);
+        }
+
+        private void WhenSave()
+        {
+            Action<Order> insertCallback = SimulateInsertCallback();
+            Action<Order> updateCallback = SumulateUpdateCallback();
+            _myOrderModel.Save(Arg.Any<Order>(),
+                insertCallback,
+                updateCallback);
+        }
+
+        private Action<Order> SumulateUpdateCallback()
+        {
+            return (o) => { _isUpdate = true; };
+        }
+
+        private Action<Order> SimulateInsertCallback()
+        {
+            return (o) => { _isInsert = true; };
+        }
+
+        private void GivenOrderNoExist()
+        {
+            _repository.IsExist(Arg.Any<Order>()).ReturnsForAnyArgs(false);
         }
 
         [Ignore("")]
