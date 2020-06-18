@@ -28,6 +28,14 @@ namespace DelegateVerify
             ShouldInvokeUpdateCallback();
         }
 
+        [Ignore("")]
+        [Test]
+        public void update_order()
+        {
+            //TODO
+            var myOrderModel = new MyOrderModel(_repository);
+        }
+
         private void ShouldInvokeUpdateCallback()
         {
             Assert.IsTrue(_isInsert);
@@ -40,8 +48,8 @@ namespace DelegateVerify
 
         private void WhenSave()
         {
-            Action<Order> insertCallback = SimulateInsertCallback();
-            Action<Order> updateCallback = SumulateUpdateCallback();
+            var insertCallback = SimulateInsertCallback();
+            var updateCallback = SumulateUpdateCallback();
             _myOrderModel.Save(Arg.Any<Order>(),
                 insertCallback,
                 updateCallback);
@@ -60,14 +68,6 @@ namespace DelegateVerify
         private void GivenOrderNoExist()
         {
             _repository.IsExist(Arg.Any<Order>()).ReturnsForAnyArgs(false);
-        }
-
-        [Ignore("")]
-        [Test]
-        public void update_order()
-        {
-            //TODO
-            var myOrderModel = new MyOrderModel(_repository);
         }
     }
 }
