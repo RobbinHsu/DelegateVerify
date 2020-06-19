@@ -13,7 +13,10 @@ namespace DelegateVerify
 
         public void Save(Order order)
         {
-            _orderModel.Save(order, this.InsertMessage, this.UpdateMessage);
+            _orderModel.OnCreated += this.InsertMessage;
+            _orderModel.OnUpdated += this.UpdateMessage;
+            _orderModel.Save(order);
+            //_orderModel.Save(order, this.InsertMessage, this.UpdateMessage);
         }
 
         private void UpdateMessage(Order order)

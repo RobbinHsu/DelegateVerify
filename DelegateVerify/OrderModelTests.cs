@@ -8,6 +8,7 @@ namespace DelegateVerify
     {
         private IRepository<Order> _repository = Substitute.For<IRepository<Order>>();
 
+        [Ignore("")]
         [Test]
         public void insert_order()
         {
@@ -15,6 +16,7 @@ namespace DelegateVerify
             var myOrderModel = new MyOrderModel(_repository);
         }
 
+        [Ignore("")]
         [Test]
         public void update_order()
         {

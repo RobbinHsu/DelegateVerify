@@ -11,14 +11,27 @@ namespace DelegateVerify
             _repository = repository;
         }
 
+        public event Action<Order> OnCreated;
+        public event Action<Order> OnUpdated;
+
+        public void Save(Order order)
+        {
+            if (!_repository.IsExist(order))
+            {
+                _repository.Insert(order);
+                OnCreated?.Invoke(order);
+            }
+            else
+            {
+                _repository.Update(order);
+                OnUpdated?.Invoke(order);
+            }
+        }
+
         public void Save(Order order, Action<Order> insertCallback, Action<Order> updateCallback)
         {
             if (!_repository.IsExist(order))
             {
-                if (DateTime.Today.DayOfWeek == DayOfWeek.Sunday)
-                {
-                    order.Amount += 100;
-                }
                 _repository.Insert(order);
                 insertCallback(order);
             }

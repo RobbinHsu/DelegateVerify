@@ -16,7 +16,7 @@ namespace DelegateVerify
             orderController.Save(new Order {Id = 91, Amount = 100});
         }
 
-
+        [Ignore("")]
         [Test]
         public void no_exist_order_should_insert()
         {
